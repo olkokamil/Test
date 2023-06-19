@@ -1,2 +1,3 @@
 Test content for the first file
 Test 2
+Test 3
