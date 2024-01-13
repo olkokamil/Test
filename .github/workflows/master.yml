@@ -5,7 +5,7 @@ on:
 
 jobs:
   run-updater:
-    runs-on: self-hosted
+    runs-on: windows-latest
     steps:
     - name: REST API with curl
       run: |
