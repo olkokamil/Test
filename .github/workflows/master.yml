@@ -9,5 +9,5 @@ jobs:
     steps:
     - name: REST API with curl
       run: |
-        BRANCH_NAME=${GITHUB_REF#refs/heads/}
+        $BRANCH_NAME = "${{ github.ref }}".Split("/")[-1]
         curl -X POST https://services.beta.wincan.com/jenkins/job/st/buildWithParameters?token=12345&BranchName=$BRANCH_NAME -u kolko:${{secrets.JENKINSACCESS}} -k        
