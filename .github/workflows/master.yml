@@ -9,4 +9,4 @@ jobs:
     steps:
     - name: REST API with curl
       run: |
-        curl -X POST https://services.beta.wincan.com/jenkins/view/Automated%20Tests/job/Test%20-%20Mail/buildWithParameters?token=12345 -u kolko:${{secrets.JENKINSACCESS}} -k
+        curl -X POST https://services.beta.wincan.com/jenkins/view/Automated%20Tests/job/st/buildWithParameters?token=12345 -u kolko:${{secrets.JENKINSACCESS}} -k
