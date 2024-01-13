@@ -10,4 +10,5 @@ jobs:
     - name: REST API with curl
       run: |
         $BRANCH_NAME = "${{ github.ref }}".Split("/")[-1]
-        curl -X POST https://services.beta.wincan.com/jenkins/job/st/buildWithParameters?token=12345&BranchName=$BRANCH_NAME -u kolko:${{secrets.JENKINSACCESS}} -k        
+        $url = "https://services.beta.wincan.com/jenkins/job/st/buildWithParameters?token=12345&BranchName=" + $BRANCH_NAME
+        curl -X POST $url -u kolko:${{secrets.JENKINSACCESS}} -k        
