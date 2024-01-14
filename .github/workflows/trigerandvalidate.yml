@@ -13,6 +13,7 @@ jobs:
     - name: Trigger Jenkins Job
       run: |
         $env:BRANCH_NAME = "${{ github.ref }}".Split("/")[-1]
+        Write-Host "Branch: $env:BRANCH_NAME"
         $url = "https://services.beta.wincan.com/jenkins/job/Test%20-%20WebHook/buildWithParameters?token=12345&BranchName=" + $env:BRANCH_NAME
         curl -X POST $url -u kolko:${{secrets.JENKINSACCESS}} -k
         
@@ -26,7 +27,7 @@ jobs:
         $description = $null
         do {
             Start-Sleep -Seconds 1
-            $sha="${{ github.sha }}"
+            $sha="${{ github.event.pull_request.head.sha }}"
             $repostatusUrl ="https://api.github.com/repos/olkokamil/Test/statuses/$sha"
             $response = Invoke-RestMethod -Uri $repostatusUrl -Headers @{Authorization="Bearer ${{secrets.GITHUB_TOKEN}}"}
             $description = $response.description
