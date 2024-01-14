@@ -1,43 +1,39 @@
-name: "Trigger Jenkins Job - with validation"
+name: "Trigger Jenkins Job - Validate"
+
 on:
-  pull_request:
-    types:
-      - opened
+  push:
+    branches: ['main']
 
 jobs:
   run-updater:
     runs-on: windows-latest
     steps:
-    - name: Validate test
+    - name: Trigger Jenkins Job
       run: |
         $BRANCH_NAME = "${{ github.ref }}".Split("/")[-1]
         $url = "https://services.beta.wincan.com/jenkins/job/st/buildWithParameters?token=12345&BranchName=" + $BRANCH_NAME
-        $JENKINS_QUEUE_ITEM=$(curl -X POST $url -u kolko:${{secrets.JENKINSACCESS}} -k)
-        echo "JENKINS_QUEUE_ITEM=${JENKINS_QUEUE_ITEM}" >> $GITHUB_ENV
-
+        $response = Invoke-RestMethod -Method Post -Uri $url -Authentication Basic -Credential (New-Object PSCredential('kolko', (ConvertTo-SecureString '${{secrets.JENKINSACCESS}}' -AsPlainText -Force))) -SkipCertificateCheck
+        $queueUrl = $response.Headers.Location  # Assuming the Location header contains the queue URL
 
     - name: Wait for Jenkins Job to Complete
       run: |
-        # Use a loop to periodically check the status of the Jenkins job
-        # You will need to adjust this loop based on how you're checking the job status
-        # The loop should continue until the job is complete
-        # Use the stored queue item number or build URL to check the job status
-        # Set an exit code based on the job's success or failure
-        $JENKINS_JOB_STATUS="UNKNOWN"
-        while ($JENKINS_JOB_STATUS -eq "UNKNOWN") {
-         Start-Sleep -Seconds 10  # Adjust the sleep duration as needed
-         $JENKINS_JOB_STATUS = Invoke-RestMethod -Uri "https://services.beta.wincan.com/jenkins/job/st/api/json?tree=builds[result]" -Credential kolko:${{secrets.JENKINSACCESS}} | Select-Object -ExpandProperty builds | Select-Object -First 1 | Select-Object -ExpandProperty result
+        $jobCompleted = $false
+        $statusUrl = $queueUrl + "/api/json"  # Adjust as needed for your Jenkins setup
 
-          if ($null -eq $JENKINS_JOB_STATUS) {
-            $JENKINS_JOB_STATUS = "UNKNOWN"
+        while (-not $jobCompleted) {
+          Start-Sleep -Seconds 60  # Poll every 60 seconds, adjust as needed
+          $status = Invoke-RestMethod -Uri $statusUrl -UseBasicParsing
+          if ($status -and $status.executable -and $status.executable.number) {
+            $jobCompleted = $true
+            $buildNumber = $status.executable.number
+            $buildUrl = "https://services.beta.wincan.com/jenkins/job/st/$buildNumber/api/json"
           }
         }
-        # Check if the Jenkins job failed and exit with error if it did
-        if ($JENKINS_JOB_STATUS -ne "SUCCESS") {
-          Write-Host "Jenkins job failed"
+
+        $buildStatus = Invoke-RestMethod -Uri $buildUrl -UseBasicParsing
+        if ($buildStatus.result -ne "SUCCESS") {
+          Write-Host "Jenkins job failed with status: $($buildStatus.result)"
           exit 1
         }
-
-    - name: Job Succeeded
-      if: success()
-      run: Write-Host "Jenkins job completed successfully."      
+        else {
+          Write-Host "J
