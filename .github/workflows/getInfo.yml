@@ -8,5 +8,5 @@ jobs:
     steps:
       - name: Fetch Jenkins Build Information
         run: |
-          curl -u "kolko:${{secrets.JENKINSACCESS}}" "https://services.beta.wincan.com/jenkins/job/Test%20-%20WebHook/lastBuild/api/json" > build_info.json
+          curl -u "kolko:${{secrets.JENKINSACCESS}}" "https://services.beta.wincan.com/jenkins/job/Test%20-%20WebHook/lastBuild/api/json" -k > build_info.json
           cat build_info.json 
