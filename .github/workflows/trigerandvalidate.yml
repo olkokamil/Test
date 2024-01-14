@@ -25,7 +25,7 @@ jobs:
         $token = "${{ secrets.GITHUB_TOKEN }}"
         $description = $null
         do {
-            Start-Sleep -Seconds 30
+            Start-Sleep -Seconds 1
             $sha="${{ github.sha }}"
             $repostatusUrl ="https://api.github.com/repos/olkokamil/Test/statuses/$sha"
             $response = Invoke-RestMethod -Uri $repostatusUrl -Headers @{Authorization="Bearer ${{secrets.GITHUB_TOKEN}}"}
