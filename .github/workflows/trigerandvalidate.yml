@@ -23,23 +23,17 @@ jobs:
         Write-Host "Repository: $repo"
         Write-Host "Pull Request Number: $prNumber"
         $token = "${{ secrets.GITHUB_TOKEN }}"
-        $status = $null
+        $description = $null
         do {
             Start-Sleep -Seconds 30
             $sha="${{ github.sha }}"
             $repostatusUrl ="https://api.github.com/repos/olkokamil/Test/statuses/$sha"
             $response = Invoke-RestMethod -Uri $repostatusUrl -Headers @{Authorization="Bearer ${{secrets.GITHUB_TOKEN}}"}
             $description = $response[0].description
+            Write-Host "Description URL: $description"
             $prApiUrl = "https://api.github.com/repos/$repo/pulls/$prNumber"
             Write-Host "PR API URL: $prApiUrl"
             
-            $response = Invoke-RestMethod -Headers @{Authorization="Bearer $token"} -Uri $prApiUrl
-            $statusesUrl = $response.statuses_url
-            Write-Host "Statuses URL: $statusesUrl"
-            
-            $statusResponse = Invoke-RestMethod -Headers @{Authorization="Bearer $token"} -Uri $statusesUrl
-            $status = $statusResponse | Where-Object { $_.context -eq "Jenkins" } | Select-Object -ExpandProperty state
-            Write-Host "Current Status: $status"
         } while ($description -eq $null)
 
         if ($description -ne 'success') {
