@@ -16,7 +16,7 @@ jobs:
           Write-Host $response
           $queueUrl = $response.Headers.Location
 
-          if (-not $queueUrl) {
+          if (-not $response) {
             Write-Host "Queue URL not obtained from Jenkins."
             exit 1
           }
