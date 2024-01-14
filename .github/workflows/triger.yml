@@ -12,6 +12,31 @@ jobs:
       run: |
         $BRANCH_NAME = "${{ github.ref }}".Split("/")[-1]
         $url = "https://services.beta.wincan.com/jenkins/job/st/buildWithParameters?token=12345&BranchName=" + $BRANCH_NAME
-        JENKINS_QUEUE_ITEM=$(curl -X POST $url -u kolko:${{secrets.JENKINSACCESS}} -k)
+        $JENKINS_QUEUE_ITEM=$(curl -X POST $url -u kolko:${{secrets.JENKINSACCESS}} -k)
         echo "JENKINS_QUEUE_ITEM=${JENKINS_QUEUE_ITEM}" >> $GITHUB_ENV
 
+
+    - name: Wait for Jenkins Job to Complete
+      run: |
+        # Use a loop to periodically check the status of the Jenkins job
+        # You will need to adjust this loop based on how you're checking the job status
+        # The loop should continue until the job is complete
+        # Use the stored queue item number or build URL to check the job status
+        # Set an exit code based on the job's success or failure
+        JENKINS_JOB_STATUS="UNKNOWN"
+        while [[ "$JENKINS_JOB_STATUS" == "UNKNOWN" ]]; do
+          sleep 1  # Adjust the sleep duration as needed
+          JENKINS_JOB_STATUS=$(curl "https://services.beta.wincan.com/jenkins/job/st/api/json?tree=builds[result]" -u kolko:${{secrets.JENKINSACCESS}} | jq -r '.builds[0].result')
+          if [[ "$JENKINS_JOB_STATUS" == "null" ]]; then
+            JENKINS_JOB_STATUS="UNKNOWN"
+          fi
+        done
+
+        if [[ "$JENKINS_JOB_STATUS" != "SUCCESS" ]]; then
+          echo "Jenkins job failed"
+          exit 1
+        fi
+
+    - name: Job Succeeded
+      if: success()
+      run: echo "Jenkins job completed successfully."      
