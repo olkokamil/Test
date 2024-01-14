@@ -12,11 +12,10 @@ jobs:
         run: |
           $BRANCH_NAME = "${{ github.ref }}".Split("/")[-1]
           $url = "https://services.beta.wincan.com/jenkins/job/st/buildWithParameters?token=12345&BranchName=" + $BRANCH_NAME
-          $response = Invoke-RestMethod -Method Post -Uri $url -Authentication Basic -Credential (New-Object PSCredential('kolko', (ConvertTo-SecureString '${{secrets.JENKINSACCESS}}' -AsPlainText -Force))) -SkipCertificateCheck
-          Write-Host $response
+          $response = Invoke-RestMethod -Method Post -Uri $url -Authentication Basic -Credential (New-Object PSCredential('kolko', (ConvertTo-SecureString '${{secrets.JENKINSACCESS}}' -AsPlainText -Force))) -SkipCertificateCheck          
           $queueUrl = $response.Headers.Location
 
-          if (-not $response) {
+          if (-not $queueUrl) {
             Write-Host "Queue URL not obtained from Jenkins."
             exit 1
           }
