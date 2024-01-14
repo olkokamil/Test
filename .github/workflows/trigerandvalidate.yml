@@ -4,7 +4,7 @@ on:
     branches: 
     - main
     - development
-    - olkokamil-patch-34
+    - olkokamil-patch-35
 
 jobs:
   run-updater:
@@ -29,7 +29,7 @@ jobs:
             $sha="${{ github.sha }}"
             $repostatusUrl ="https://api.github.com/repos/olkokamil/Test/statuses/$sha"
             $response = Invoke-RestMethod -Uri $repostatusUrl -Headers @{Authorization="Bearer ${{secrets.GITHUB_TOKEN}}"}
-            $description = $response[0].description
+            $description = $response.description
             Write-Host "Description URL: $description"
             $prApiUrl = "https://api.github.com/repos/$repo/pulls/$prNumber"
             Write-Host "PR API URL: $prApiUrl"
