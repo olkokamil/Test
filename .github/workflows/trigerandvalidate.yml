@@ -19,12 +19,22 @@ jobs:
       run: |
         $prNumber = ${{ github.event.pull_request.number }}
         $repo = "${{ github.repository }}"
+        Write-Host "Repository: $repo"
+        Write-Host "Pull Request Number: $prNumber"
         $token = "${{ secrets.GITHUB_TOKEN }}"
         $status = $null
         do {
             Start-Sleep -Seconds 30
-            $response = Invoke-RestMethod -Headers @{Authorization="Bearer $token"} -Uri "https://api.github.com/olkokamil/Test/pulls/$prNumber"
-            $status = $response.statuses_url | Invoke-RestMethod -Headers @{Authorization="Bearer $token"} | Where-Object { $_.context -eq "Jenkins" } | Select-Object -ExpandProperty state
+            $prApiUrl = "https://api.github.com/repos/$repo/pulls/$prNumber"
+            Write-Host "PR API URL: $prApiUrl"
+            
+            $response = Invoke-RestMethod -Headers @{Authorization="Bearer $token"} -Uri $prApiUrl
+            $statusesUrl = $response.statuses_url
+            Write-Host "Statuses URL: $statusesUrl"
+            
+            $statusResponse = Invoke-RestMethod -Headers @{Authorization="Bearer $token"} -Uri $statusesUrl
+            $status = $statusResponse | Where-Object { $_.context -eq "Jenkins" } | Select-Object -ExpandProperty state
+            Write-Host "Current Status: $status"
         } while ($status -eq $null)
 
         if ($status -ne 'success') {
