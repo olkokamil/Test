@@ -26,7 +26,7 @@ jobs:
         $JENKINS_JOB_STATUS="UNKNOWN"
         while ($JENKINS_JOB_STATUS -eq "UNKNOWN") {
          Start-Sleep -Seconds 10  # Adjust the sleep duration as needed
-         $JENKINS_JOB_STATUS = Invoke-RestMethod -Uri "http://your-jenkins-url/job/your-job-name/api/json?tree=builds[result]" -Credential $Credentials | Select-Object -ExpandProperty builds | Select-Object -First 1 | Select-Object -ExpandProperty result
+         $JENKINS_JOB_STATUS = Invoke-RestMethod -Uri "https://services.beta.wincan.com/jenkins/job/st/api/json?tree=builds[result]" -Credential $Credentials | Select-Object -ExpandProperty builds | Select-Object -First 1 | Select-Object -ExpandProperty result
 
           if ($null -eq $JENKINS_JOB_STATUS) {
             $JENKINS_JOB_STATUS = "UNKNOWN"
