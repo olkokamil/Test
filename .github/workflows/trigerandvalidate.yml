@@ -4,6 +4,7 @@ on:
     branches: 
     - main
     - development
+    - olkokamil-patch-31
 
 jobs:
   run-updater:
