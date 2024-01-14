@@ -26,6 +26,10 @@ jobs:
         $status = $null
         do {
             Start-Sleep -Seconds 30
+            $sha=${{ github.sha }}
+            $repostatusUrl ="https://api.github.com/repos/olkokamil/Test/statuses/$sha"
+            $response = Invoke-RestMethod -Uri $repostatusUrl -Headers @{Authorization="Bearer ${{secrets.GITHUB_TOKEN}}"}
+            $description = $response[0].description
             $prApiUrl = "https://api.github.com/repos/$repo/pulls/$prNumber"
             Write-Host "PR API URL: $prApiUrl"
             
@@ -36,9 +40,9 @@ jobs:
             $statusResponse = Invoke-RestMethod -Headers @{Authorization="Bearer $token"} -Uri $statusesUrl
             $status = $statusResponse | Where-Object { $_.context -eq "Jenkins" } | Select-Object -ExpandProperty state
             Write-Host "Current Status: $status"
-        } while ($status -eq $null)
+        } while ($description -eq $null)
 
-        if ($status -ne 'success') {
+        if ($description -ne 'success') {
             Write-Error "Jenkins build failed or status not updated"
             exit 1
         }
