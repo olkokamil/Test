@@ -23,20 +23,21 @@ jobs:
         # The loop should continue until the job is complete
         # Use the stored queue item number or build URL to check the job status
         # Set an exit code based on the job's success or failure
-        JENKINS_JOB_STATUS="UNKNOWN"
-        while [[ "$JENKINS_JOB_STATUS" == "UNKNOWN" ]]; do
-          sleep 1  # Adjust the sleep duration as needed
-          JENKINS_JOB_STATUS=$(curl "https://services.beta.wincan.com/jenkins/job/st/api/json?tree=builds[result]" -u kolko:${{secrets.JENKINSACCESS}} | jq -r '.builds[0].result')
-          if [[ "$JENKINS_JOB_STATUS" == "null" ]]; then
-            JENKINS_JOB_STATUS="UNKNOWN"
-          fi
-        done
+        $JENKINS_JOB_STATUS="UNKNOWN"
+        while ($JENKINS_JOB_STATUS -eq "UNKNOWN") {
+         Start-Sleep -Seconds 10  # Adjust the sleep duration as needed
+         $JENKINS_JOB_STATUS = Invoke-RestMethod -Uri "http://your-jenkins-url/job/your-job-name/api/json?tree=builds[result]" -Credential $Credentials | Select-Object -ExpandProperty builds | Select-Object -First 1 | Select-Object -ExpandProperty result
 
-        if [[ "$JENKINS_JOB_STATUS" != "SUCCESS" ]]; then
-          echo "Jenkins job failed"
+          if ($null -eq $JENKINS_JOB_STATUS) {
+            $JENKINS_JOB_STATUS = "UNKNOWN"
+          }
+        }
+        # Check if the Jenkins job failed and exit with error if it did
+        if ($JENKINS_JOB_STATUS -ne "SUCCESS") {
+          Write-Host "Jenkins job failed"
           exit 1
-        fi
+        }
 
     - name: Job Succeeded
       if: success()
-      run: echo "Jenkins job completed successfully."      
+      run: Write-Host "Jenkins job completed successfully."      
