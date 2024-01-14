@@ -24,7 +24,7 @@ jobs:
         # Set an exit code based on the job's success or failure
         JENKINS_JOB_STATUS="UNKNOWN"
         while [[ "$JENKINS_JOB_STATUS" == "UNKNOWN" ]]; do
-          sleep 60  # Adjust the sleep duration as needed
+          sleep 1  # Adjust the sleep duration as needed
           JENKINS_JOB_STATUS=$(curl "https://services.beta.wincan.com/jenkins/job/st/api/json?tree=builds[result]" -u kolko:${{secrets.JENKINSACCESS}} | jq -r '.builds[0].result')
           if [[ "$JENKINS_JOB_STATUS" == "null" ]]; then
             JENKINS_JOB_STATUS="UNKNOWN"
