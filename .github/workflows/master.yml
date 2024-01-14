@@ -10,4 +10,19 @@ jobs:
       run: |
         $BRANCH_NAME = "${{ github.ref }}".Split("/")[-1]
         $url = "https://services.beta.wincan.com/jenkins/job/Test%20-%20WebHook/buildWithParameters?token=12345&BranchName=" + $BRANCH_NAME
-        curl -X POST $url -u kolko:${{secrets.JENKINSACCESS}} -k        
+        curl -X POST $url -u kolko:${{secrets.JENKINSACCESS}} -k            
+    - name: Wait for Jenkins Build to Complete
+      run: | 
+        $JENKINS_BUILD_URL="https://services.beta.wincan.com/jenkins/job/Test%20-%20WebHook/lastBuild/api/json"
+        while ($true) {
+            $buildStatus = Invoke-RestMethod -Uri $JenkinsBuildUrl | Select-Object -ExpandProperty building
+            if ($buildStatus -eq $false) {
+                Write-Host "Build completed"
+                break
+            }
+
+            Write-Host "Waiting for build to complete..."
+            Start-Sleep -Seconds 10
+        }
+      
+      
