@@ -1,4 +1,4 @@
-name: "Trigger Jenkins Job - Validate"
+name: "Trigger Jenkins Job- validate"
 
 on:
   push:
@@ -8,32 +8,33 @@ jobs:
   run-updater:
     runs-on: windows-latest
     steps:
-    - name: Trigger Jenkins Job
-      run: |
-        $BRANCH_NAME = "${{ github.ref }}".Split("/")[-1]
-        $url = "https://services.beta.wincan.com/jenkins/job/st/buildWithParameters?token=12345&BranchName=" + $BRANCH_NAME
-        $response = Invoke-RestMethod -Method Post -Uri $url -Authentication Basic -Credential (New-Object PSCredential('kolko', (ConvertTo-SecureString '${{secrets.JENKINSACCESS}}' -AsPlainText -Force))) -SkipCertificateCheck
-        $queueUrl = $response.Headers.Location  # Assuming the Location header contains the queue URL
+      - name: Trigger Jenkins Job
+        run: |
+          $BRANCH_NAME = "${{ github.ref }}".Split("/")[-1]
+          $url = "https://services.beta.wincan.com/jenkins/job/st/buildWithParameters?token=12345&BranchName=" + $BRANCH_NAME
+          $response = Invoke-RestMethod -Method Post -Uri $url -Authentication Basic -Credential (New-Object PSCredential('kolko', (ConvertTo-SecureString '${{secrets.JENKINSACCESS}}' -AsPlainText -Force))) -SkipCertificateCheck
+          $queueUrl = $response.Headers.Location  # Assuming the Location header contains the queue URL
 
-    - name: Wait for Jenkins Job to Complete
-      run: |
-        $jobCompleted = $false
-        $statusUrl = $queueUrl + "/api/json"  # Adjust as needed for your Jenkins setup
+      - name: Wait for Jenkins Job to Complete
+        run: |
+          $jobCompleted = $false
+          $statusUrl = $queueUrl + "/api/json"  # Adjust as needed for your Jenkins setup
 
-        while (-not $jobCompleted) {
-          Start-Sleep -Seconds 60  # Poll every 60 seconds, adjust as needed
-          $status = Invoke-RestMethod -Uri $statusUrl -UseBasicParsing
-          if ($status -and $status.executable -and $status.executable.number) {
-            $jobCompleted = $true
-            $buildNumber = $status.executable.number
-            $buildUrl = "https://services.beta.wincan.com/jenkins/job/st/$buildNumber/api/json"
+          while (-not $jobCompleted) {
+            Start-Sleep -Seconds 60  # Poll every 60 seconds, adjust as needed
+            $status = Invoke-RestMethod -Uri $statusUrl -UseBasicParsing
+            if ($status -and $status.executable -and $status.executable.number) {
+              $jobCompleted = $true
+              $buildNumber = $status.executable.number
+              $buildUrl = "https://services.beta.wincan.com/jenkins/job/st/$buildNumber/api/json"
+            }
           }
-        }
 
-        $buildStatus = Invoke-RestMethod -Uri $buildUrl -UseBasicParsing
-        if ($buildStatus.result -ne "SUCCESS") {
-          Write-Host "Jenkins job failed with status: $($buildStatus.result)"
-          exit 1
-        }
-        else {
-          Write-Host "J
+          $buildStatus = Invoke-RestMethod -Uri $buildUrl -UseBasicParsing
+          if ($buildStatus.result -ne "SUCCESS") {
+            Write-Host "Jenkins job failed with status: $($buildStatus.result)"
+            exit 1
+          }
+          else {
+            Write-Host "Jenkins job completed successfully."
+          }
