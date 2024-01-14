@@ -16,9 +16,11 @@ jobs:
         $JENKINS_BUILD_URL="https://services.beta.wincan.com/jenkins/job/Test%20-%20WebHook/lastBuild/api/json"
 
         while ($true) {
+            Write-Host "przed"
             $response = curl -Uri $JENKINS_BUILD_URL -UseBasicParsing -u kolko:${{secrets.JENKINSACCESS}} -k 
+            Write-Host "w środku"
             $buildStatus = $response.Content | ConvertFrom-Json | Select-Object -ExpandProperty building
-            
+            Write-Host "po"
             if ($buildStatus -eq $false) {
                 Write-Host "Build completed"
                 break
