@@ -1,3 +1,4 @@
+name: "Trigger Jenkins Job - with validation"
 on:
   pull_request:
     types:
