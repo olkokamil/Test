@@ -10,9 +10,9 @@ jobs:
     runs-on: windows-latest
     steps:
     - name: Trigger Jenkins Job
-      run: |
-        Write-Host "Branch: $env:BRANCH_NAME"
+      run: |        
         $env:BRANCH_NAME = "${{ github.head_ref }}"
+        Write-Host "Branch: $env:BRANCH_NAME"
         $url = "https://services.beta.wincan.com/jenkins/job/Test%20-%20WebHook/buildWithParameters?token=12345&BranchName=" + $env:BRANCH_NAME
         curl -X POST $url -u kolko:${{secrets.JENKINSACCESS}} -k
         
