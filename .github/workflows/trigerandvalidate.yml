@@ -1,0 +1,33 @@
+name: "Trigger Jenkins Job and Wait"
+on:
+  pull_request:
+    branches: 
+    - main
+    - development
+
+jobs:
+  run-updater:
+    runs-on: windows-latest
+    steps:
+    - name: Trigger Jenkins Job
+      run: |
+        $env:BRANCH_NAME = "${{ github.ref }}".Split("/")[-1]
+        $url = "https://services.beta.wincan.com/jenkins/job/Test%20-%20WebHook/buildWithParameters?token=12345&BranchName=" + $env:BRANCH_NAME
+        curl -X POST $url -u kolko:${{secrets.JENKINSACCESS}} -k
+        
+    - name: Wait for Jenkins to Update PR Status
+      run: |
+        $prNumber = ${{ github.event.pull_request.number }}
+        $repo = "${{ github.repository }}"
+        $token = "${{ secrets.GITHUB_TOKEN }}"
+        $status = $null
+        do {
+            Start-Sleep -Seconds 30
+            $response = Invoke-RestMethod -Headers @{Authorization="Bearer $token"} -Uri "https://api.github.com/olkokamil/Test/pulls/$prNumber"
+            $status = $response.statuses_url | Invoke-RestMethod -Headers @{Authorization="Bearer $token"} | Where-Object { $_.context -eq "Jenkins" } | Select-Object -ExpandProperty state
+        } while ($status -eq $null)
+
+        if ($status -ne 'success') {
+            Write-Error "Jenkins build failed or status not updated"
+            exit 1
+        }
