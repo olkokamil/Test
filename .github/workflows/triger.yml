@@ -11,7 +11,7 @@ jobs:
       - name: Trigger Jenkins Job
         run: |
           $BRANCH_NAME = "${{ github.ref }}".Split("/")[-1]
-          $url = "https://services.beta.wincan.com/jenkins/job/test_commitpublis/buildWithParameters?token=12345&BranchName=" + $BRANCH_NAME
+          $url = "https://services.beta.wincan.com/jenkins/job/st/buildWithParameters?token=12345&BranchName=" + $BRANCH_NAME
           $response = Invoke-RestMethod -Method Post -Uri $url -Authentication Basic -Credential (New-Object PSCredential('kolko', (ConvertTo-SecureString '${{secrets.JENKINSACCESS}}' -AsPlainText -Force))) -SkipCertificateCheck
           $queueUrl = $response.Headers.Location
 
