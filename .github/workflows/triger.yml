@@ -11,7 +11,7 @@ jobs:
     - name: Validate test
       run: |
         $BRANCH_NAME = "${{ github.ref }}".Split("/")[-1]
-        $url = "https://services.beta.wincan.com/jenkins/job/st/buildWithParameters?token=12345&cause=Triggered+by+GitHub+Actions&BranchName=" + $BRANCH_NAME
+        $url = "https://services.beta.wincan.com/jenkins/job/st/buildWithParameters?token=12345&BranchName=" + $BRANCH_NAME
         JENKINS_QUEUE_ITEM=$(curl -X POST $url -u kolko:${{secrets.JENKINSACCESS}} -k)
         echo "JENKINS_QUEUE_ITEM=${JENKINS_QUEUE_ITEM}" >> $GITHUB_ENV
 
