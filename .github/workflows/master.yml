@@ -14,8 +14,11 @@ jobs:
     - name: Wait for Jenkins Build to Complete
       run: | 
         $JENKINS_BUILD_URL="https://services.beta.wincan.com/jenkins/job/Test%20-%20WebHook/lastBuild/api/json"
+
         while ($true) {
-            $buildStatus = Invoke-RestMethod -Uri $JENKINS_BUILD_URL | Select-Object -ExpandProperty building
+            $response = curl -Uri $JENKINS_BUILD_URL -UseBasicParsing -u kolko:${{secrets.JENKINSACCESS}} -k 
+            $buildStatus = $response.Content | ConvertFrom-Json | Select-Object -ExpandProperty building
+            
             if ($buildStatus -eq $false) {
                 Write-Host "Build completed"
                 break
