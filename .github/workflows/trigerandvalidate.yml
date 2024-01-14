@@ -3,8 +3,7 @@ on:
   pull_request:
     branches: 
     - main
-    - development
-    - olkokamil-patch-35
+    - development    
 
 jobs:
   run-updater:
@@ -12,14 +11,14 @@ jobs:
     steps:
     - name: Trigger Jenkins Job
       run: |
-        $env:BRANCH_NAME = "${{ github.ref }}".Split("/")[-1]
         Write-Host "Branch: $env:BRANCH_NAME"
+        $env:BRANCH_NAME = "${{ github.head_ref }}"
         $url = "https://services.beta.wincan.com/jenkins/job/Test%20-%20WebHook/buildWithParameters?token=12345&BranchName=" + $env:BRANCH_NAME
         curl -X POST $url -u kolko:${{secrets.JENKINSACCESS}} -k
         
     - name: Wait for Jenkins to Update PR Status
       run: |
-        $prNumber = ${{ github.event.pull_request.number }}
+        $prNumber = "${{ github.event.pull_request.number }}"
         $repo = "${{ github.repository }}"
         Write-Host "Repository: $repo"
         Write-Host "Pull Request Number: $prNumber"
@@ -29,8 +28,9 @@ jobs:
             Start-Sleep -Seconds 1
             $sha="${{ github.event.pull_request.head.sha }}"
             $repostatusUrl ="https://api.github.com/repos/olkokamil/Test/statuses/$sha"
+            Write-Host "URL: $repostatusUrl"
             $response = Invoke-RestMethod -Uri $repostatusUrl -Headers @{Authorization="Bearer ${{secrets.GITHUB_TOKEN}}"}
-            $description = $response.description
+            $description = $response[0].description
             Write-Host "Description URL: $description"
             $prApiUrl = "https://api.github.com/repos/$repo/pulls/$prNumber"
             Write-Host "PR API URL: $prApiUrl"
