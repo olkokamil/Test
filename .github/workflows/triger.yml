@@ -1,0 +1,12 @@
+on:
+  pull_request:
+    types:
+      - opened
+
+jobs:
+  run-updater:
+    runs-on: windows-latest
+    steps:
+    - name: Validate test
+      run: |
+        curl -X POST https://services.beta.wincan.com/jenkins/job/Trigger/buildWithParameters?GITHUB_SHA=${{ github.sha }} -u 1ee7add0-4e4d-4c7a-93aa-fd406898e323:111791b18b6defe4c10e212aab02300f00 -k
