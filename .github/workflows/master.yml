@@ -1,7 +1,11 @@
 name: "Trigger Jenkins Job"
 on:
   push:
-    branches: ['main','development']
+    branches: 
+    - main
+    - development
+  
+  
 jobs:
   run-updater:
     runs-on: windows-latest
