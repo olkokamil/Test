@@ -9,4 +9,4 @@ jobs:
     steps:
     - name: Validate test
       run: |
-curl -X POST https://services.beta.wincan.com/jenkins/job/Test%20-%20WebHook/buildWithParameters?GITHUB_SHA=${{ github.sha }} -u kolko:${{secrets.JENKINSACCESS}} -k
+        curl -X POST https://services.beta.wincan.com/jenkins/job/Test%20-%20WebHook/buildWithParameters?GITHUB_SHA=${{ github.sha }} -u kolko:${{secrets.JENKINSACCESS}} -k
