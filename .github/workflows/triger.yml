@@ -35,7 +35,7 @@ jobs:
               if ($status -and $status.executable -and $status.executable.number) {
                 $jobCompleted = $true
                 $buildNumber = $status.executable.number
-                $buildUrl = "https://services.beta.wincan.com/jenkins/job/test_commitpublis/$buildNumber/api/json"
+                $buildUrl = "https://services.beta.wincan.com/jenkins/job/st/$buildNumber/api/json"
               }
             } catch {
               Write-Host "Error while checking job status: $_"
