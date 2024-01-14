@@ -1,0 +1,12 @@
+name: Get Jenkins Build Info
+
+on: [push]
+
+jobs:
+  get-build-info:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch Jenkins Build Information
+        run: |
+          curl -u "username:token" "http://your-jenkins-url/job/your-job-name/lastBuild/api/json" > build_info.json
+          cat build_info.json
