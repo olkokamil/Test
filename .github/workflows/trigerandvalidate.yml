@@ -1,6 +1,6 @@
 name: "Trigger Jenkins Job and Wait"
 on:
-  push:
+  pull_request:
     branches: 
     - main
     - development
