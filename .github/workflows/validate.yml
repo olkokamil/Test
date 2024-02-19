@@ -1,3 +1,4 @@
+name: "test validacja"
 on:
   pull_request:
     types:
