@@ -14,7 +14,7 @@ jobs:
         $env:BRANCH_NAME = "${{ github.head_ref }}"
         Write-Host "Branch: $env:BRANCH_NAME"
         $url = "https://services.beta.wincan.com/jenkins/job/Test%20-%20WebHook/buildWithParameters?token=12345&BranchName=" + $env:BRANCH_NAME
-        curl -X POST $url -u kolko:${{secrets.JENKINSACCESS}} -k
+        curl -X POST $url -u jenkins-triggers:${{secrets.JENKINSACCESS}} -k
         
     - name: Wait for Jenkins to Update PR Status
       run: |
