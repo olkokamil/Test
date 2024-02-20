@@ -37,7 +37,7 @@ jobs:
             
         } while ($description -eq $null)
 
-        if ($description -ne 'Build passed!') {
+        if ($description -ne 'Build Success!') {
             Write-Error "Jenkins build failed or status not updated"
             exit 1
         }
