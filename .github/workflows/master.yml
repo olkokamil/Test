@@ -4,14 +4,14 @@ on:
     branches: 
     - main
     - development   
-  
-  
+    
 jobs:
   run-updater:
     runs-on: windows-latest
     steps:
-    - name: REST API with curl
-      run: |
-        $BRANCH_NAME = "${{ github.ref }}".Split("/")[-1]
-        $url = "https://services.beta.wincan.com/jenkins/job/Test%20-%20WebHook/buildWithParameters?token=12345&BranchName=" + $BRANCH_NAME
-        curl -X POST $url -u kolko:${{secrets.JENKINSACCESS}} -k    
+    - name: Trigger Jenkins Job
+      run: |        
+        $env:BRANCH_NAME = "${{ github.head_ref }}"
+        Write-Host "Branch: $env:BRANCH_NAME"
+        $url = "https://services.beta.wincan.com/jenkins/job/Test%20-%20WebHook/buildWithParameters?token=12345&BranchName=" + $env:BRANCH_NAME
+        curl -X POST $url -u jenkins-triggers:${{secrets.JENKINSACCESS}} -k
